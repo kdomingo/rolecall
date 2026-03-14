@@ -3,9 +3,8 @@ package com.academe.rolecall.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.academe.rolecall.R
-import com.academe.rolecall.data.models.DemoAccount
 import com.academe.rolecall.data.models.UserCredentials
-import com.academe.rolecall.data.preferences.UserPreferences
+import com.academe.rolecall.data.service.AuthService
 import com.academe.rolecall.form.FieldError
 import com.academe.rolecall.form.FieldErrorType
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,7 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val preferences: UserPreferences
+    private val authService: AuthService
 ) : ViewModel() {
     private val _state = MutableStateFlow(LoginUiState())
     val state = _state.asStateFlow()
@@ -30,7 +29,7 @@ class LoginViewModel @Inject constructor(
     }
 
     fun login(credentials: UserCredentials) {
-        _state.update { it.copy(fieldError = null) }
+        _state.update { it.copy(fieldError = null, loginError = null, isLoading = true) }
 
         val fieldError = when {
             credentials.email.isBlank() -> FieldError(FieldErrorType.Email, R.string.error_email_required)
@@ -39,15 +38,25 @@ class LoginViewModel @Inject constructor(
         }
 
         if (fieldError != null) {
-            _state.update { it.copy(fieldError = fieldError) }
+            _state.update { it.copy(fieldError = fieldError, isLoading = false) }
             return
         }
 
         viewModelScope.launch {
-            val demo = DemoAccount()
-            preferences.setDemoMode(credentials.email == demo.email && credentials.password == demo.password)
-            preferences.setAuthenticated(true)
-            _navigateToDashboard.value = true
+            authService.login(credentials).onSuccess {
+                _state.update { it.copy(isLoading = false) }
+                _navigateToDashboard.value = true
+            }.onFailure { e ->
+                _state.update {
+                    it.copy(
+                        isLoading = false,
+                        loginError = LoginError(
+                            type = LoginErrorType.Unknown, // Defaulting to Unknown, could be refined based on 'e'
+                            message = e.message ?: "Login failed"
+                        )
+                    )
+                }
+            }
         }
     }
 }
