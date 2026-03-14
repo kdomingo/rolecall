@@ -1,5 +1,6 @@
 package com.academe.rolecall.login
 
+import com.academe.rolecall.R
 import com.academe.rolecall.form.FieldErrorType
 import com.academe.rolecall.data.models.UserCredentials
 import kotlinx.coroutines.flow.first
@@ -43,7 +44,7 @@ class LoginViewModelTest {
 
         val state = viewModel.state.value
         assertEquals(FieldErrorType.Email, state.fieldError?.type)
-        assertEquals("Email is required", state.fieldError?.message)
+        assertEquals(R.string.error_email_required, state.fieldError?.messageRes)
     }
 
     @Test
@@ -53,7 +54,7 @@ class LoginViewModelTest {
 
         val state = viewModel.state.value
         assertEquals(FieldErrorType.Password, state.fieldError?.type)
-        assertEquals("Password is required", state.fieldError?.message)
+        assertEquals(R.string.error_password_required, state.fieldError?.messageRes)
     }
 
     @Test

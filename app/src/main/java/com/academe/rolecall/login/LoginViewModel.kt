@@ -1,6 +1,7 @@
 package com.academe.rolecall.login
 
 import androidx.lifecycle.ViewModel
+import com.academe.rolecall.R
 import com.academe.rolecall.data.models.UserCredentials
 import com.academe.rolecall.form.FieldError
 import com.academe.rolecall.form.FieldErrorType
@@ -36,10 +37,10 @@ class LoginViewModel @Inject constructor(): ViewModel() {
 
         _state.value = _state.value.copy(
             fieldError = when {
-                credentials.email.isBlank() -> FieldError(FieldErrorType.Email, "Email is required")
+                credentials.email.isBlank() -> FieldError(FieldErrorType.Email, R.string.error_email_required)
                 credentials.password.isBlank() -> FieldError(
                     FieldErrorType.Password,
-                    "Password is required"
+                    R.string.error_password_required
                 )
                 else -> null
             }
