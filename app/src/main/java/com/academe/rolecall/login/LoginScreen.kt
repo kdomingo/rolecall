@@ -66,7 +66,11 @@ fun LoginScreen(navController: NavController = rememberNavController()) {
 
     if (navigateToDashboard) {
         LaunchedEffect(Unit) {
-            navController.navigate(Screens.Dashboard.name)
+            navController.navigate(Screens.Dashboard.name) {
+                popUpTo(route = Screens.Login.name) {
+                    inclusive = true
+                }
+            }
         }
     }
 
