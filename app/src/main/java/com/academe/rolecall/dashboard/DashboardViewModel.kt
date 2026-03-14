@@ -2,7 +2,7 @@ package com.academe.rolecall.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.academe.rolecall.data.models.Student
+import com.academe.rolecall.data.preferences.UserPreferences
 import com.academe.rolecall.data.repository.StudentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,11 +13,26 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    private val repository: StudentRepository
+    private val repository: StudentRepository,
+    private val preferences: UserPreferences
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardUiState())
     val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            preferences.demoModeFlow.collect { isDemoMode ->
+                _state.update { it.copy(isDemoMode = isDemoMode) }
+            }
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            preferences.clear()
+        }
+    }
 
     fun loadStudents() {
         _state.update { it.copy(isLoading = true, error = null) }

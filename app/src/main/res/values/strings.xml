@@ -7,4 +7,11 @@
     <string name="login_button">Login</string>
     <string name="error_email_required">Email is required</string>
     <string name="error_password_required">Password is required</string>
+    <string name="error_invalid_credentials">Invalid email or password</string>
+    <string name="dashboard_title">Dashboard</string>
+    <string name="settings_menu">Settings</string>
+    <string name="logout">Logout</string>
+    <string name="student_list_empty">No students found.</string>
+    <string name="roll_number_prefix">Roll No: </string>
+    <string name="demo_mode">Demo Mode</string>
 </resources>
