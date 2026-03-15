@@ -1,5 +1,6 @@
 package com.academe.rolecall.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.academe.rolecall.R
@@ -44,9 +45,11 @@ class LoginViewModel @Inject constructor(
 
         viewModelScope.launch {
             authService.login(credentials).onSuccess {
+                Log.d("LoginViewModel", "login: Success")
                 _state.update { it.copy(isLoading = false) }
                 _navigateToDashboard.value = true
             }.onFailure { e ->
+                Log.d("LoginViewModel", "login: ${e. message}")
                 _state.update {
                     it.copy(
                         isLoading = false,

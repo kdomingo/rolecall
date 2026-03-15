@@ -1,5 +1,7 @@
 package com.academe.rolecall.dashboard
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
@@ -20,16 +24,19 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -49,10 +56,6 @@ fun DashboardScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     var showMenu by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        viewModel.loadStudents()
-    }
 
     Scaffold(
         topBar = {
@@ -104,8 +107,12 @@ fun DashboardScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(state.students) { student ->
-                        StudentItem(student)
+                    items(state.students, key = { it.id ?: 0 }) { student ->
+                        SwipeableStudentItem(
+                            student = student,
+                            onDelete = { viewModel.deleteStudent(student) },
+                            onMarkPresent = { viewModel.markPresent(student) }
+                        )
                         HorizontalDivider()
                     }
                 }
@@ -114,11 +121,72 @@ fun DashboardScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SwipeableStudentItem(
+    student: Student,
+    onDelete: () -> Unit,
+    onMarkPresent: () -> Unit
+) {
+    val dismissState = rememberSwipeToDismissBoxState(
+        confirmValueChange = {
+            when (it) {
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    onMarkPresent()
+                    false
+                }
+                SwipeToDismissBoxValue.EndToStart -> {
+                    onDelete()
+                    true
+                }
+                SwipeToDismissBoxValue.Settled -> false
+            }
+        }
+    )
+
+    SwipeToDismissBox(
+        state = dismissState,
+        backgroundContent = {
+            val color by animateColorAsState(
+                when (dismissState.targetValue) {
+                    SwipeToDismissBoxValue.StartToEnd -> Color(0xFF4CAF50) // Green
+                    SwipeToDismissBoxValue.EndToStart -> Color(0xFFF44336) // Red
+                    SwipeToDismissBoxValue.Settled -> Color.Transparent
+                }, label = "dismiss_background"
+            )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(color)
+                    .padding(horizontal = 20.dp),
+                contentAlignment = when (dismissState.targetValue) {
+                    SwipeToDismissBoxValue.StartToEnd -> Alignment.CenterStart
+                    SwipeToDismissBoxValue.EndToStart -> Alignment.CenterEnd
+                    else -> Alignment.Center
+                }
+            ) {
+                Icon(
+                    imageVector = when (dismissState.targetValue) {
+                        SwipeToDismissBoxValue.StartToEnd -> Icons.Default.Check
+                        SwipeToDismissBoxValue.EndToStart -> Icons.Default.Delete
+                        else -> Icons.Default.Check
+                    },
+                    contentDescription = null,
+                    tint = Color.White
+                )
+            }
+        }
+    ) {
+        StudentItem(student)
+    }
+}
+
 @Composable
 fun StudentItem(student: Student) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
             .padding(16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">rolecall</string>
+    <string name="app_name">Role Call</string>
     <string name="login_title">Role Call</string>
     <string name="email_label">Email</string>
     <string name="password_label">Password</string>

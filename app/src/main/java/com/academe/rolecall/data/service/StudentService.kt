@@ -2,6 +2,7 @@ package com.academe.rolecall.data.service
 
 import com.academe.rolecall.data.models.Student
 import com.academe.rolecall.data.repository.StudentRepository
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -9,12 +10,11 @@ import javax.inject.Singleton
 class StudentService @Inject constructor(
     private val repository: StudentRepository
 ) {
-    suspend fun getStudents(): Result<List<Student>> {
-        return try {
-            val students = repository.getStudents()
-            Result.success(students)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+    fun getStudents(): Flow<List<Student>> {
+        return repository.getStudents()
+    }
+
+    suspend fun deleteStudent(student: Student) {
+        repository.deleteStudent(student)
     }
 }

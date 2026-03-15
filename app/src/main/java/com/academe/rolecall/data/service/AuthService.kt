@@ -33,7 +33,7 @@ class AuthService @Inject constructor(
                 createdOn = dateFormat.format(Date())
             )
             
-            sessionRepository.insert(session)
+            // sessionRepository.insert(session)
             preferences.setDemoMode(isDemo)
             preferences.setAuthenticated(true)
             Result.success(Unit)

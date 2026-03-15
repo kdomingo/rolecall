@@ -3,13 +3,17 @@ package com.academe.rolecall.di
 import android.content.Context
 import androidx.room.Room
 import com.academe.rolecall.data.AppDatabase
+import com.academe.rolecall.data.dao.AttendanceDao
 import com.academe.rolecall.data.dao.SessionDao
 import com.academe.rolecall.data.dao.StudentDao
 import com.academe.rolecall.data.dao.UserDao
 import com.academe.rolecall.data.preferences.UserPreferences
 import com.academe.rolecall.data.repository.AppSessionRepository
 import com.academe.rolecall.data.repository.AppSessionRepositoryImpl
+import com.academe.rolecall.data.repository.AttendanceRepository
+import com.academe.rolecall.data.repository.AttendanceRepositoryImpl
 import com.academe.rolecall.data.repository.DummyAppSessionRepositoryImpl
+import com.academe.rolecall.data.repository.DummyAttendanceRepositoryImpl
 import com.academe.rolecall.data.repository.DummyStudentRepositoryImpl
 import com.academe.rolecall.data.repository.DummyUserRepositoryImpl
 import com.academe.rolecall.data.repository.StudentRepository
@@ -47,6 +51,9 @@ object AppModule {
 
     @Provides
     fun provideStudentDao(database: AppDatabase): StudentDao = database.studentDao()
+
+    @Provides
+    fun provideAttendanceDao(database: AppDatabase): AttendanceDao = database.attendanceDao()
 
     @Provides
     @Singleton
@@ -89,6 +96,21 @@ object AppModule {
                 DummyAppSessionRepositoryImpl()
             } else {
                 AppSessionRepositoryImpl(sessionDao)
+            }
+        }
+    }
+
+    @Provides
+    @Singleton
+    fun provideAttendanceRepository(
+        preferences: UserPreferences,
+        attendanceDao: AttendanceDao
+    ): AttendanceRepository {
+        return runBlocking {
+            if (preferences.demoModeFlow.first()) {
+                DummyAttendanceRepositoryImpl()
+            } else {
+                AttendanceRepositoryImpl(attendanceDao)
             }
         }
     }
