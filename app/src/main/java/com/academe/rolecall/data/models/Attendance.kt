@@ -5,26 +5,24 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "app_sessions",
+    tableName = "attendance",
     foreignKeys = [
         ForeignKey(
-            entity = User::class,
+            entity = Student::class,
             parentColumns = ["id"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-data class AppSession(
+data class Attendance(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val userId: Long?,
-    val token: String,
-    val expiresOn: Long,
-    val createdOn: String?
+    val userId: Long,
+    val date: String
 ) {
     init {
-        require(token.isNotBlank()) { "Token cannot be blank" }
-        require(expiresOn > 0) { "Expiry time must be positive" }
+        require(userId > 0 || userId == -1L) { "User ID must be valid" }
+        require(date.isNotBlank()) { "Date cannot be blank" }
     }
 }
