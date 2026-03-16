@@ -5,5 +5,6 @@ enum class Screens {
     Login,
     SignUp,
     Dashboard,
+    Attendance,
     Profile
 }

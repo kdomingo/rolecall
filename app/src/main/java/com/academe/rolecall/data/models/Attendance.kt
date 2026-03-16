@@ -20,4 +20,9 @@ data class Attendance(
     val id: Long = 0,
     val userId: Long,
     val date: String
-)
+) {
+    init {
+        require(userId > 0 || userId == -1L) { "User ID must be valid" }
+        require(date.isNotBlank()) { "Date cannot be blank" }
+    }
+}

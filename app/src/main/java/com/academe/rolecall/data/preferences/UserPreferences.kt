@@ -7,8 +7,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.navigationevent.OnBackCompletedFallback
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -18,13 +16,23 @@ import javax.inject.Singleton
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_preferences")
 
+interface UserPreferences {
+    val demoModeFlow: Flow<Boolean>
+    val authenticatedFlow: Flow<Boolean>
+    suspend fun setDemoMode(enabled: Boolean)
+    suspend fun setAuthenticated(enabled: Boolean)
+    suspend fun clear()
+}
+
 @Singleton
-class UserPreferences @Inject constructor(@param:ApplicationContext private val context: Context) {
+class UserPreferencesImpl @Inject constructor(
+    private val context: Context
+) : UserPreferences {
     private val demoModeKey = booleanPreferencesKey("demo_mode")
     private val authenticatedKey = booleanPreferencesKey("authenticated")
 
-    val demoModeFlow: Flow<Boolean> = getValue(demoModeKey, false)
-    val authenticatedFlow: Flow<Boolean> = getValue(authenticatedKey,false)
+    override val demoModeFlow: Flow<Boolean> = getValue(demoModeKey, false)
+    override val authenticatedFlow: Flow<Boolean> = getValue(authenticatedKey, false)
 
     @Suppress("SameParameterValue")
     private fun <T> getValue(key: Preferences.Key<T>, fallback: T): Flow<T> = context.dataStore.data
@@ -39,19 +47,19 @@ class UserPreferences @Inject constructor(@param:ApplicationContext private val 
             preferences[key] ?: fallback
         }
 
-    suspend fun setDemoMode(enabled: Boolean) {
+    override suspend fun setDemoMode(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[demoModeKey] = enabled
         }
     }
 
-    suspend fun setAuthenticated(enabled: Boolean) {
+    override suspend fun setAuthenticated(enabled: Boolean) {
         context.dataStore.edit { preferences ->
             preferences[authenticatedKey] = enabled
         }
     }
 
-    suspend fun clear() {
+    override suspend fun clear() {
         context.dataStore.edit { preferences ->
             preferences.clear()
         }

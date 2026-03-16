@@ -14,6 +14,14 @@ class AttendanceService @Inject constructor(
         return repository.getAttendanceForStudent(studentId)
     }
 
+    fun getAttendanceForDate(date: String): Flow<List<Attendance>> {
+        return repository.getAttendanceForDate(date)
+    }
+
+    fun getAllAttendanceDates(): Flow<List<String>> {
+        return repository.getAllAttendanceDates()
+    }
+
     suspend fun markAttendance(studentId: Long, date: String) {
         val attendance = Attendance(userId = studentId, date = date)
         repository.insert(attendance)

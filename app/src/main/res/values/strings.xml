@@ -9,9 +9,13 @@
     <string name="error_password_required">Password is required</string>
     <string name="error_invalid_credentials">Invalid email or password</string>
     <string name="dashboard_title">Dashboard</string>
+    <string name="attendance_title">Attendance History</string>
     <string name="settings_menu">Settings</string>
     <string name="logout">Logout</string>
     <string name="student_list_empty">No students found.</string>
     <string name="roll_number_prefix">Roll No: </string>
     <string name="demo_mode">Demo Mode</string>
+    <string name="select_date">Select Date</string>
+    <string name="no_attendance_records">No attendance records for this date.</string>
+    <string name="present">Present</string>
 </resources>

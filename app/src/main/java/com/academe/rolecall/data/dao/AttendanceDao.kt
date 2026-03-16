@@ -12,6 +12,12 @@ interface AttendanceDao {
     @Query("SELECT * FROM attendance WHERE userId = :userId")
     fun getAttendanceForUser(userId: Long): Flow<List<Attendance>>
 
+    @Query("SELECT * FROM attendance WHERE date = :date")
+    fun getAttendanceForDate(date: String): Flow<List<Attendance>>
+
+    @Query("SELECT DISTINCT date FROM attendance ORDER BY date DESC")
+    fun getAllAttendanceDates(): Flow<List<String>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(attendance: Attendance)
 

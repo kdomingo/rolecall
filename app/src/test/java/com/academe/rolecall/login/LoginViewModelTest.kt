@@ -1,10 +1,17 @@
 package com.academe.rolecall.login
 
 import com.academe.rolecall.R
-import com.academe.rolecall.form.FieldErrorType
 import com.academe.rolecall.data.models.UserCredentials
+import com.academe.rolecall.data.service.AuthService
+import com.academe.rolecall.form.FieldErrorType
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
@@ -12,13 +19,23 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
 
+    private val testDispatcher = UnconfinedTestDispatcher()
     private lateinit var viewModel: LoginViewModel
+    private lateinit var authService: AuthService
 
     @Before
     fun setup() {
-        viewModel = LoginViewModel()
+        Dispatchers.setMain(testDispatcher)
+        authService = FakeAuthService()
+        viewModel = LoginViewModel(authService)
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
     }
 
     @Test
@@ -67,4 +84,21 @@ class LoginViewModelTest {
 
         assertNull(viewModel.state.value.fieldError)
     }
+
+    private class FakeAuthService : AuthService(
+        preferences = object : com.academe.rolecall.data.preferences.UserPreferences {
+            override val demoModeFlow = kotlinx.coroutines.flow.flowOf(false)
+            override val authenticatedFlow = kotlinx.coroutines.flow.flowOf(false)
+            override suspend fun setDemoMode(enabled: Boolean) {}
+            override suspend fun setAuthenticated(enabled: Boolean) {}
+            override suspend fun clear() {}
+        },
+        sessionRepository = object : com.academe.rolecall.data.repository.AppSessionRepository {
+            override suspend fun insert(session: com.academe.rolecall.data.models.AppSession) {}
+            override suspend fun delete(session: com.academe.rolecall.data.models.AppSession) {}
+            override suspend fun getById(id: Long) = null
+            override fun getAll() = kotlinx.coroutines.flow.flowOf(emptyList<com.academe.rolecall.data.models.AppSession>())
+            override suspend fun deleteAll() {}
+        }
+    )
 }
