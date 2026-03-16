@@ -8,6 +8,7 @@ import com.academe.rolecall.data.dao.SessionDao
 import com.academe.rolecall.data.dao.StudentDao
 import com.academe.rolecall.data.dao.UserDao
 import com.academe.rolecall.data.preferences.UserPreferences
+import com.academe.rolecall.data.preferences.UserPreferencesImpl
 import com.academe.rolecall.data.repository.AppSessionRepository
 import com.academe.rolecall.data.repository.AppSessionRepositoryImpl
 import com.academe.rolecall.data.repository.AttendanceRepository
@@ -32,6 +33,15 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun provideAppContext(@ApplicationContext context: Context): Context = context
+
+    @Provides
+    fun provideUserPreferences(preferencesImpl: UserPreferencesImpl): UserPreferences {
+        return preferencesImpl
+    }
 
     @Provides
     @Singleton
